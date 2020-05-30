@@ -12,18 +12,6 @@
 
 .TAGS OOBE PPKG Office
 
-.LICENSEURI 
-
-.PROJECTURI 
-
-.ICONURI 
-
-.EXTERNALMODULEDEPENDENCIES 
-
-.REQUIREDSCRIPTS 
-
-.EXTERNALSCRIPTDEPENDENCIES 
-
 .RELEASENOTES
      Extract the ZIP to specified TEMP folder and run the Office setup.exe 
      with the configuration file as a parameter during the initial setup 
