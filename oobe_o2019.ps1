@@ -1,21 +1,53 @@
-﻿ <#
+<#PSScriptInfo
 
-.Synopsis
-    Office suite installation during OOBE
+.VERSION 1.0
 
-.DESCRIPTION
+.GUID 9de1f0bf-7c8c-4c6a-ab2e-04fdb84237cc
+
+.AUTHOR cizek@kpcs.cz
+
+.COMPANYNAME KPCS CZ, s.r.o.
+
+.COPYRIGHT 2020 KPCS CZ, s.r.o. - All rights reserved.
+
+.TAGS OOBE PPKG Office
+
+.LICENSEURI 
+
+.PROJECTURI 
+
+.ICONURI 
+
+.EXTERNALMODULEDEPENDENCIES 
+
+.REQUIREDSCRIPTS 
+
+.EXTERNALSCRIPTDEPENDENCIES 
+
+.RELEASENOTES
      Extract the ZIP to specified TEMP folder and run the Office setup.exe 
      with the configuration file as a parameter during the initial setup 
      of Windows 10 device. 
 
      Original work https://docs.microsoft.com/cs-cz/archive/blogs/beanexpert/how-to-install-office-using-a-provisioning-package
-     which has tobe modified, as it´s using DeviceContext provisioning commands. 
+     which has tobe modified, as it´s using DeviceContext provisioning commands.
+
+#>
+<#
+.DESCRIPTION
+    Office suite installation during OOBE
+
+    Extract the ZIP to specified TEMP folder and run the Office setup.exe 
+    with the configuration file as a parameter during the initial setup 
+    of Windows 10 device. 
+    Original work https://docs.microsoft.com/cs-cz/archive/blogs/beanexpert/how-to-install-office-using-a-provisioning-package
+    which has tobe modified, as it´s using DeviceContext provisioning commands. 
 
 .AUTHOR
     Jan Čížek
-    j.cizek@hotmail.com
-
+    cizek@kpcs.cz
 #>
+
 [CmdletBinding()]
 [Alias()]
 [OutputType([int])]
@@ -29,7 +61,6 @@ Param
 )
 
 Begin{
-
     # Start logging
     Start-Transcript -Path $Log -Force -ErrorAction SilentlyContinue
 
@@ -48,7 +79,6 @@ Begin{
 
     #and UNZIP
     ForEach-Object -InputObject $Archives -Process { Expand-Archive -Path $_.FullName -DestinationPath $path -Force}
-
     }
 
 Process {
@@ -67,23 +97,21 @@ Process {
     $setupexe = Get-ChildItem -Path $WorkingDirectory -Filter *.exe
 
     #For logging purposes in Transcript - uncomment
-    write-host "WORKING directory: " $WorkingDirectory
+    #write-host "WORKING directory: " $WorkingDirectory
     write-host "XML fullName: " $XML.fullname
     write-host "SETUP fullname: " 
      
-    # Run Office 2016 setup.exe
+    # Run Office 2016/2019 setup.exe
     write-host "Starting Office 365 installation..." -NoNewline
 
     try {
 
         Set-Location $WorkingDirectory
 
-        #Start-Process -FilePath .\setup.exe `
-        #-ArgumentList ('/Configure "{0}"' -f $Configuration.FullName)  `
-        #-WorkingDirectory $WorkingDirectory  `
-        #-Wait -WindowStyle Hidden 
-
-        cmd /c "setup.exe  /Configure Configuration.xml"
+        Start-Process 'cmd' -Credential $cred `
+         -ArgumentList "/c setup.exe  /Configure Configuration.xml" `
+         -ErrorAction Stop `
+         -WorkingDirectory $WorkingDirectory  
 
         write-host " DONE" 
         }
@@ -93,7 +121,7 @@ Process {
     # Cleanup Installation
     write-host "Cleaning installation data..."
     Remove-Item -Path $WorkingDirectory -Force -Confirm:$false
-     write-host "TEMP cleared..."
+    write-host "TEMP cleared..."
     }
 
 end {
@@ -101,11 +129,3 @@ end {
     write-host "Stopping transcript..."
     Stop-Transcript -ErrorAction SilentlyContinue
      }
-
-
-
-
-
-
-
-
